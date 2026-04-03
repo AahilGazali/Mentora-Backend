@@ -1,16 +1,17 @@
 "use strict";
 
 /**
- * Finds repo root via package.json, then loads dist/server.js.
- * Works regardless of Render root directory or where this file lives under src/.
+ * Locates dist/server.js by walking up from __dirname/cwd.
+ * Does not rely on package.json (Render may use nested src/ or duplicate paths).
  */
 const path = require("path");
 const fs = require("fs");
 
-function findPackageRoot(startDir) {
+function findDistServer(startDir) {
   let dir = path.resolve(startDir);
-  for (let i = 0; i < 12; i++) {
-    if (fs.existsSync(path.join(dir, "package.json"))) return dir;
+  for (let i = 0; i < 16; i++) {
+    const candidate = path.join(dir, "dist", "server.js");
+    if (fs.existsSync(candidate)) return candidate;
     const parent = path.dirname(dir);
     if (parent === dir) break;
     dir = parent;
@@ -18,17 +19,15 @@ function findPackageRoot(startDir) {
   return null;
 }
 
-const root =
-  findPackageRoot(__dirname) ||
-  findPackageRoot(process.cwd()) ||
-  path.join(__dirname, "..");
+const distServer =
+  findDistServer(__dirname) ||
+  findDistServer(process.cwd()) ||
+  null;
 
-const distServer = path.join(root, "dist", "server.js");
-
-if (!fs.existsSync(distServer)) {
-  console.error("Missing compiled output at:", distServer);
-  console.error("Resolved repo root:", root, "__dirname:", __dirname, "cwd:", process.cwd());
-  console.error("Run `npm run build` from the repository root (where package.json is).");
+if (!distServer) {
+  console.error("Could not find dist/server.js; walked up from __dirname and cwd.");
+  console.error("__dirname:", __dirname, "cwd:", process.cwd());
+  console.error("Run `npm run build` so tsc emits dist/server.js at the repo root.");
   process.exit(1);
 }
 
