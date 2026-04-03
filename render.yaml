@@ -1,0 +1,11 @@
+# Backend root = repo root (package.json + server.ts live here).
+# In the Render dashboard: Root Directory must be empty (not "src"), or this blueprint will mis-resolve paths.
+
+services:
+  - type: web
+    name: mentora-backend
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
