@@ -1,5 +1,5 @@
 import http from "http";
-import express from "express";
+import express, { type Request, type Response } from "express";
 import morgan from "morgan";
 import { Server as SocketIOServer } from "socket.io";
 import { env } from "./src/config/env";
@@ -16,7 +16,7 @@ app.use(morgan("dev"));
 app.use(corsMiddleware);
 app.use(express.json());
 
-app.get("/health", (_req, res) => {
+app.get("/health", (_req: Request, res: Response) => {
   res.json({ ok: true });
 });
 
